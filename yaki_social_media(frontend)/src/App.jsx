@@ -62,7 +62,7 @@ function App() {
   }, [user, dispatch, navigate, location.pathname]);
 
   return (
-    <div className="w-[100vw] h-[100vh] ">
+    <div className="min-h-screen w-full bg-[#F8FAFC]">
       <Routes>
         {authRoutes}
         {userRoutes}

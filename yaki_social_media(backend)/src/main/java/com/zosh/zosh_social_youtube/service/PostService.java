@@ -112,8 +112,12 @@ public class PostService {
      */
     @Transactional
     public PostResponse updatePost(String postId,String userId, PostUpdateRequest request) {
-        Post post = postRepository.findById(userId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+
+        if (!post.getUser().getId().equals(userId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_ACTION);
+        }
 
         if (request.getCaption() != null) {
             post.setCaption(request.getCaption());
@@ -190,6 +194,7 @@ public class PostService {
         return postMapper.toPostResponse(post,user);
     }
 
+    @Transactional
     public PostResponse unsavePost(String postId, String userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -200,7 +205,7 @@ public class PostService {
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_SAVED_YET));
 
         user.getSavedPosts().remove(savedPost);
-        savedPostRepository.save(savedPost);
+        savedPostRepository.delete(savedPost);
 
         return postMapper.toPostResponse(post);
     }

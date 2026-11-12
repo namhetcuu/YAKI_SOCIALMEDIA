@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,13 +26,17 @@ import java.util.Set;
 @Slf4j
 public class ApplicationInitConfig {
 
+    private static final String ADMIN_PASSWORD_PLACEHOLDER =
+            "PASTE_A_STRONG_INITIAL_ADMIN_PASSWORD_HERE";
+
     PasswordEncoder passwordEncoder;
 //    RoleRepository roleRepository;
     UserRepository userRepository;
 
     @Bean
     @Transactional // Đảm bảo tất cả thay đổi DB thực hiện trong một transaction
-    ApplicationRunner applicationRunner() {
+    ApplicationRunner applicationRunner(
+            @Value("${app.bootstrap-admin.password:}") String bootstrapAdminPassword) {
         return args -> {
             // ✅ Kiểm tra và tạo Role ADMIN nếu chưa có
 //            Role adminRole = roleRepository.findById(EnumRole.ADMIN.name())
@@ -53,14 +58,23 @@ public class ApplicationInitConfig {
 
             // ✅ Kiểm tra và tạo user "admin" nếu chưa tồn tại
             Optional<User> existingAdmin = userRepository.findByUsername("admin");
+            boolean hasConfiguredAdminPassword = bootstrapAdminPassword != null
+                    && !bootstrapAdminPassword.isBlank()
+                    && !bootstrapAdminPassword.startsWith("PASTE_")
+                    && !bootstrapAdminPassword.startsWith("replace-with");
+
             if (existingAdmin.isEmpty()) {
+                if (!hasConfiguredAdminPassword) {
+                    log.warn("Admin bootstrap skipped. Set BOOTSTRAP_ADMIN_PASSWORD to create the initial admin user");
+                    return;
+                }
 
                 var roles = new HashSet<String>();
                 roles.add(EnumRole.ADMIN.name());
 
                 User user = User.builder()
                         .username("admin")
-                        .password(passwordEncoder.encode("admin"))
+                        .password(passwordEncoder.encode(bootstrapAdminPassword))
                         .email("admin@example.com")
                         .firstName("Admin")
                         .lastName("User")
@@ -70,7 +84,14 @@ public class ApplicationInitConfig {
                         .build();
 
                 userRepository.save(user);
-                log.warn("Admin user has been created with default password: admin, please change it");
+                log.info("Initial admin user has been created");
+            } else if (hasConfiguredAdminPassword
+                    && passwordEncoder.matches(
+                            ADMIN_PASSWORD_PLACEHOLDER, existingAdmin.get().getPassword())) {
+                User admin = existingAdmin.get();
+                admin.setPassword(passwordEncoder.encode(bootstrapAdminPassword));
+                userRepository.save(admin);
+                log.info("Replaced the placeholder password on the initial admin user");
             }
         };
     }

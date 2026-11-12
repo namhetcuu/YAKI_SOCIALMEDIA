@@ -114,7 +114,7 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    public CommentResponse getCommentById(Long commentId) {
+    public CommentResponse getCommentById(String commentId) {
         // Tìm bình luận theo ID
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
@@ -166,13 +166,14 @@ public class CommentService {
     //Nếu người dùng đã thích bài viết trước đó, hệ thống sẽ xóa lượt thích (Unlike).
     //Nếu chưa thích, hệ thống sẽ thêm lượt thích (Like).
     //@org.springframework.transaction.annotation.Transactional
-    public CommentResponse likeComment(Long commentId, String userId) {
+    @org.springframework.transaction.annotation.Transactional
+    public CommentResponse likeComment(String commentId, String username) {
         // Tìm bình luận theo commentId
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
 
         // Tìm người dùng theo userId
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         // Kiểm tra xem người dùng đã thích bình luận chưa

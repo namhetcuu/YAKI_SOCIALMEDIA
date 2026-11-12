@@ -1,150 +1,69 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { 
-  List, 
-  ListItem, 
-  ListItemIcon, 
-  ListItemText, 
-  Divider, 
-  Typography,
-  Checkbox,
-  Box
-} from '@mui/material';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   Dashboard as DashboardIcon,
-  CalendarToday as CalendarIcon,
-  Person as ProfileIcon,
-  Task as TaskIcon,
-  Description as FormsIcon,
-  TableChart as TablesIcon,
-  Pages as PagesIcon,
-  Chat as ChatIcon,
-  Email as EmailIcon,
-  Receipt as InvoiceIcon
+  People as PeopleIcon,
+  Home as HomeIcon,
+  Article as ArticleIcon,
+  Analytics as AnalyticsIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const menuItems = [
+    { path: '/admin', icon: <DashboardIcon fontSize="small" />, text: 'Dashboard' },
+    { path: '/admin/users', icon: <PeopleIcon fontSize="small" />, text: 'User Management' },
+    { path: '/home', icon: <HomeIcon fontSize="small" />, text: 'Back to Feed' },
+  ];
+
   return (
-    <Box sx={{ 
-      width: 260,
-      height: '100vh',
-      backgroundColor: 'white',
-      borderRight: '1px solid #e5e7eb',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '20px 0'
-    }}>
-      {/* Header */}
-      <Typography variant="h6" sx={{
-        fontWeight: 'bold',
-        padding: '0 24px 16px',
-        color: 'text.primary',
-        fontSize: '1.25rem'
-      }}>
-        TailAdmin
-      </Typography>
+    <aside className="w-64 h-screen bg-white border-r border-slate-100 flex flex-col justify-between p-5 select-none">
+      <div className="space-y-6">
+        {/* Brand */}
+        <div
+          onClick={() => navigate('/home')}
+          className="flex items-center gap-2.5 cursor-pointer group"
+        >
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/25">
+            <span className="text-base font-black">⚡</span>
+          </div>
+          <div>
+            <span className="font-black text-lg text-slate-900 tracking-tight">
+              YAKI<span className="text-indigo-600">Admin</span>
+            </span>
+          </div>
+        </div>
 
-      {/* MENU Section */}
-      <Typography variant="subtitle2" sx={{
-        padding: '0 24px 8px',
-        color: 'text.secondary',
-        fontSize: '0.75rem',
-        fontWeight: '600',
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px'
-      }}>
-        MENU
-      </Typography>
+        <div className="space-y-1">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2">
+            Control Center
+          </p>
 
-      <List sx={{ padding: '0 12px' }}>
-        {[
-          { path: '/admin', icon: <DashboardIcon />, text: 'Dashboard', active: false },
-          { path: '/calendar', icon: <CalendarIcon />, text: 'Calendar', active: false },
-          { path: '/profile', icon: <ProfileIcon />, text: 'User Profile', active: false },
-          { path: '/tasks', icon: <TaskIcon />, text: 'Task', active: false },
-          { path: '/forms', icon: <FormsIcon />, text: 'Forms', active: false },
-          { path: '/tables', icon: <TablesIcon />, text: 'Tables', active: false },
-          { path: '/pages', icon: <PagesIcon />, text: 'Pages', active: false },
-        ].map((item) => (
-          <NavLink to={item.path} key={item.text} style={{ textDecoration: 'none' }}>
-            {({ isActive }) => (
-              <ListItem button sx={{
-                borderRadius: '6px',
-                margin: '4px 12px',
-                padding: '8px 12px',
-                backgroundColor: isActive || item.active ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-                '&:hover': {
-                  backgroundColor: 'rgba(59, 130, 246, 0.05)'
-                }
-              }}>
-                <ListItemIcon sx={{ minWidth: '36px', color: isActive || item.active ? 'primary.main' : 'text.secondary' }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText 
-                  primary={item.text} 
-                  sx={{
-                    color: isActive || item.active ? 'primary.main' : 'text.primary',
-                    '& .MuiTypography-root': {
-                      fontSize: '0.875rem',
-                      fontWeight: isActive || item.active ? '500' : '400'
-                    }
-                  }} 
-                />
-              </ListItem>
-            )}
-          </NavLink>
-        ))}
-      </List>
+          {menuItems.map((item) => (
+            <NavLink
+              to={item.path}
+              key={item.text}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition ${
+                  isActive && item.path !== '/home'
+                    ? 'bg-indigo-50 text-indigo-600 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`
+              }
+            >
+              <span className="text-slate-400">{item.icon}</span>
+              <span>{item.text}</span>
+            </NavLink>
+          ))}
+        </div>
+      </div>
 
-      {/* SUPPORT Section */}
-      <Typography variant="subtitle2" sx={{
-        padding: '16px 24px 8px',
-        color: 'text.secondary',
-        fontSize: '0.75rem',
-        fontWeight: '600',
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px'
-      }}>
-        SUPPORT
-      </Typography>
-
-      <List sx={{ padding: '0 12px' }}>
-        {[
-          { path: '/chat', icon: <ChatIcon />, text: 'Chat', active: false },
-          { path: '/email', icon: <EmailIcon />, text: 'Email', active: false },
-          { path: '/invoice', icon: <InvoiceIcon />, text: 'Invoice', active: false },
-        ].map((item) => (
-          <NavLink to={item.path} key={item.text} style={{ textDecoration: 'none' }}>
-            {({ isActive }) => (
-              <ListItem button sx={{
-                borderRadius: '6px',
-                margin: '4px 12px',
-                padding: '8px 12px',
-                backgroundColor: isActive ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-                '&:hover': {
-                  backgroundColor: 'rgba(59, 130, 246, 0.05)'
-                }
-              }}>
-                
-                <ListItemIcon sx={{ minWidth: '36px', color: isActive ? 'primary.main' : 'text.secondary' }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText 
-                  primary={item.text} 
-                  sx={{
-                    color: isActive ? 'primary.main' : 'text.primary',
-                    '& .MuiTypography-root': {
-                      fontSize: '0.875rem',
-                      fontWeight: isActive ? '500' : '400'
-                    }
-                  }} 
-                />
-              </ListItem>
-            )}
-          </NavLink>
-        ))}
-      </List>
-    </Box>
+      <div className="pt-4 border-t border-slate-100 text-[11px] text-slate-400">
+        YAKI Social Enterprise v2.0
+      </div>
+    </aside>
   );
 };
 

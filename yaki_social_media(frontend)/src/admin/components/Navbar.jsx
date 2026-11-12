@@ -1,185 +1,108 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { 
-  AppBar, 
-  Toolbar, 
-  IconButton, 
-  InputBase, 
-  Avatar, 
-  Typography, 
-  Box,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  Divider
-} from '@mui/material';
-import { 
-  Search, 
-  KeyboardArrowDown,
-  Person,
-  Settings,
-  Logout
-} from '@mui/icons-material';
+import { Avatar, IconButton, Menu, MenuItem, Divider } from '@mui/material';
+import { Person, Settings, Logout } from '@mui/icons-material';
+import SearchIcon from '@mui/icons-material/Search';
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const auth = useSelector((state) => state.auth);
+  const user = auth.user;
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const handleClick = (event) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
 
   const handleLogout = () => {
     handleClose();
+    localStorage.removeItem("jwt");
+    dispatch({ type: "LOGOUT" });
     navigate("/login");
   };
 
   return (
-    <AppBar 
-      position="static" 
-      elevation={0}
-      sx={{ 
-        backgroundColor: 'white',
-        borderBottom: '1px solid rgba(0, 0, 0, 0.12)'
-      }}
-    >
-      <Toolbar sx={{ justifyContent: 'flex-end' }}>
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center',
-          gap: 2
-        }}>
-          {/* Search Bar */}
-          <Box sx={{
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: 'rgba(0, 0, 0, 0.05)',
-            borderRadius: '8px',
-            padding: '4px 12px',
-            width: '300px'
-          }}>
-            <Search sx={{ color: 'rgba(0, 0, 0, 0.5)', mr: 1 }} />
-            <InputBase
-              placeholder="Search or type command..."
-              sx={{ 
-                width: '100%',
-                '& input': {
-                  padding: '6px 0',
-                  fontSize: '0.875rem'
-                }
-              }}
-            />
-          </Box>
+    <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6">
+      {/* Search */}
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs w-72">
+        <SearchIcon fontSize="small" className="text-slate-400" />
+        <input
+          type="text"
+          placeholder="Search admin dashboard..."
+          className="bg-transparent outline-none text-slate-800 w-full"
+        />
+      </div>
 
-          {/* User Profile with Dropdown */}
-          <Box 
-            sx={{ 
-              display: 'flex', 
-              alignItems: 'center',
-              cursor: 'pointer',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                borderRadius: '8px'
-              },
-              padding: '4px 8px'
-            }}
-            onClick={handleClick}
+      {/* User Actions */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => navigate('/home')}
+          className="text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-3.5 py-1.5 rounded-full transition"
+        >
+          View Live Feed
+        </button>
+
+        <button
+          onClick={handleClick}
+          className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-50 transition cursor-pointer"
+        >
+          <Avatar
+            src={user?.profilePicture}
+            sx={{ width: 34, height: 34 }}
+            className="ring-2 ring-indigo-500/20"
           >
-            <Avatar 
-              sx={{ 
-                width: 32, 
-                height: 32,
-                backgroundColor: 'primary.main',
-                fontSize: '14px',
-                mr: 1
-              }}
-            >
-              M
-            </Avatar>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                color: 'text.primary',
-                fontWeight: 500,
-                mr: 0.5,
-                fontSize: '0.875rem'
-              }}
-            >
-              Musharof
-            </Typography>
-            <KeyboardArrowDown 
-              sx={{ 
-                color: 'text.secondary',
-                transition: 'transform 0.2s',
-                transform: open ? 'rotate(180deg)' : 'rotate(0)'
-              }} 
-            />
-          </Box>
+            {user?.firstName?.charAt(0) || 'A'}
+          </Avatar>
+          <span className="text-xs font-bold text-slate-800 hidden sm:inline">
+            {user?.firstName || 'Admin'}
+          </span>
+        </button>
 
-          {/* Dropdown Menu */}
-          <Menu
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            PaperProps={{
-              elevation: 0,
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          slotProps={{
+            paper: {
               sx: {
-                overflow: 'visible',
-                filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.1))',
-                mt: 1.5,
-                '& .MuiAvatar-root': {
-                  width: 32,
-                  height: 32,
-                  ml: -0.5,
-                  mr: 1,
-                },
-                '&:before': {
-                  content: '""',
-                  display: 'block',
-                  position: 'absolute',
-                  top: 0,
-                  right: 14,
-                  width: 10,
-                  height: 10,
-                  bgcolor: 'background.paper',
-                  transform: 'translateY(-50%) rotate(45deg)',
-                  zIndex: 0,
-                },
+                borderRadius: '1rem',
+                minWidth: 160,
+                border: '1px solid #F1F5F9',
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.08)',
               },
+            },
+          }}
+        >
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              navigate(`/home/profile/${user?.id}`);
             }}
-            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            className="text-xs gap-2 py-2"
           >
-            <MenuItem onClick={handleClose}>
-              <ListItemIcon>
-                <Person fontSize="small" />
-              </ListItemIcon>
-              My Profile
-            </MenuItem>
-            <MenuItem onClick={handleClose}>
-              <ListItemIcon>
-                <Settings fontSize="small" />
-              </ListItemIcon>
-              Settings
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={handleLogout}>
-              <ListItemIcon>
-                <Logout fontSize="small" />
-              </ListItemIcon>
-              Logout
-            </MenuItem>
-          </Menu>
-        </Box>
-      </Toolbar>
-    </AppBar>
+            <Person fontSize="small" className="text-slate-400" />
+            <span>Profile</span>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              navigate('/home/settings');
+            }}
+            className="text-xs gap-2 py-2"
+          >
+            <Settings fontSize="small" className="text-slate-400" />
+            <span>Settings</span>
+          </MenuItem>
+          <Divider sx={{ my: 0.5 }} />
+          <MenuItem onClick={handleLogout} className="text-xs gap-2 py-2 text-red-600">
+            <Logout fontSize="small" />
+            <span>Logout</span>
+          </MenuItem>
+        </Menu>
+      </div>
+    </header>
   );
 };
 

@@ -1,16 +1,20 @@
-import { Avatar, Box, Button, Card, Tab, Tabs, Modal, Fade, IconButton } from '@mui/material';
+import { Avatar, IconButton, Modal, Fade, CircularProgress } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Close } from '@mui/icons-material';
 import PostCard from '../../components/Post/PostCard';
 import ProfileModal from './ProfileModal';
 import { getUsersPostAction } from '../../../redux/Post/post.action';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
+import GridViewRoundedIcon from '@mui/icons-material/GridViewRounded';
+import BookmarkBorderRoundedIcon from '@mui/icons-material/BookmarkBorderRounded';
+import MovieOutlinedIcon from '@mui/icons-material/MovieOutlined';
 
 const tabs = [
-  { value: 'post', name: 'Posts' },
-  { value: 'reels', name: 'Reels' },
-  { value: 'saved', name: 'Saved' },
-  { value: 'repost', name: 'Repost' },
+  { value: 'post', name: 'Posts', icon: <GridViewRoundedIcon fontSize="small" /> },
+  { value: 'reels', name: 'Reels', icon: <MovieOutlinedIcon fontSize="small" /> },
+  { value: 'saved', name: 'Saved', icon: <BookmarkBorderRoundedIcon fontSize="small" /> },
 ];
 
 const Profile = () => {
@@ -21,9 +25,8 @@ const Profile = () => {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const handleChange = (event, newValue) => setValue(newValue);
 
-  const user = auth.user || { firstName: 'Guest', lastName: 'User' };
+  const user = auth.user || { firstName: 'Guest', lastName: 'User', username: 'guest' };
   const userId = user.id;
   const userPosts = useSelector((state) => state.posts?.userPosts || []);
 
@@ -33,77 +36,153 @@ const Profile = () => {
     }
   }, [dispatch, userId]);
 
+  const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username;
+
   return (
-    <div className="my-10 mx-auto w-[95%] bg-white border-2 border-black rounded-md">
-      <div className="h-[15rem] border-b-2 border-black">
-        <img className="w-full h-full object-cover rounded-t-md" src="https://images.pexels.com/photos/31120801/pexels-photo-31120801/free-photo-of-phong-c-nh-bai-bi-n-tuy-t-d-p-v-i-d-o-rocky.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="cover" />
-      </div>
-
-      <div className="flex justify-between items-start px-6 mt-5 h-[5rem]">
-        <Avatar className="transform -translate-y-24 border-2 border-black" sx={{ width: '10rem', height: '10rem' }} src={`${user.profilePicture}`} />
-        <button
-          onClick={handleOpen}
-          className="border-2 border-black px-6 py-2 font-bold uppercase rounded-lg shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-none cursor-pointer transition duration-300"
-        >
-          Edit Profile
-        </button>
-      </div>
-
-      <div className="p-6 text-black">
-        <h1 className="font-bold text-3xl">{`${user.firstName} ${user.lastName}`}</h1>
-        <p className="text-sm font-mono">@{`${user.firstName}-${user.lastName}`.toLowerCase()}</p>
-        <div className="flex gap-6 items-center py-3 font-semibold">
-          <span>41 posts</span>
-          <span>35 followers</span>
-          <span>5 followings</span>
+    <div className="w-full max-w-2xl py-4 sm:py-6 space-y-6">
+      
+      {/* Profile Card Container */}
+      <div className="bg-white rounded-3xl overflow-hidden shadow-xs border border-slate-100">
+        
+        {/* Cover Photo */}
+        <div className="h-44 sm:h-56 relative bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+          <img
+            className="w-full h-full object-cover opacity-90"
+            src="https://images.unsplash.com/photo-1707343843437-caacff5cfa74?w=1200&auto=format&fit=crop&q=80"
+            alt="Cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
         </div>
-        <p className="italic text-gray-600">Lorem ipsum dolor sit amet consectetur adipisicing elit...</p>
-      </div>
 
-      <div className="border-t-2 border-black px-6">
-        <div className="flex gap-4 text-center justify-around mt-4 font-bold text-black uppercase">
+        {/* Profile Info Header */}
+        <div className="px-6 pb-6 pt-0 relative">
+          
+          {/* Avatar & Edit Button Row */}
+          <div className="flex justify-between items-end -mt-16 sm:-mt-20 mb-4">
+            {/* Avatar with gradient ring */}
+            <div className="p-1 rounded-full bg-white shadow-md">
+              <div className="p-1 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-indigo-600">
+                <Avatar
+                  sx={{ width: { xs: 88, sm: 110 }, height: { xs: 88, sm: 110 } }}
+                  src={user.profilePicture || ''}
+                  className="bg-white"
+                >
+                  {fullName.charAt(0)}
+                </Avatar>
+              </div>
+            </div>
+
+            {/* Edit Profile Button */}
+            <button
+              onClick={handleOpen}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-800 font-bold text-xs sm:text-sm bg-white shadow-2xs hover:shadow-xs transition cursor-pointer"
+            >
+              <EditOutlinedIcon fontSize="small" />
+              <span>Edit Profile</span>
+            </button>
+          </div>
+
+          {/* User Names & Badges */}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                {fullName}
+              </h1>
+              <VerifiedIcon sx={{ fontSize: 18, color: '#6366F1' }} />
+            </div>
+            <p className="text-xs sm:text-sm text-slate-400 font-medium">
+              @{user.username || `${user.firstName}.${user.lastName}`.toLowerCase()}
+            </p>
+          </div>
+
+          {/* Bio */}
+          <p className="text-xs sm:text-sm text-slate-600 mt-3 leading-relaxed max-w-xl">
+            {user.bio || 'Digital creator, design enthusiast, and tech explorer. Sharing inspirations daily on YAKI Social ✨'}
+          </p>
+
+          {/* Metadata badges */}
+          <div className="flex items-center gap-4 text-xs text-slate-400 mt-3 font-medium">
+            <span className="flex items-center gap-1">
+              <CalendarMonthOutlinedIcon fontSize="inherit" />
+              <span>Joined November 2024</span>
+            </span>
+          </div>
+
+          {/* Counters row */}
+          <div className="flex items-center gap-6 mt-4 pt-4 border-t border-slate-100 text-xs sm:text-sm">
+            <div>
+              <span className="font-extrabold text-slate-900 mr-1.5">
+                {Array.isArray(userPosts) ? userPosts.length : 0}
+              </span>
+              <span className="text-slate-400">Posts</span>
+            </div>
+            <div>
+              <span className="font-extrabold text-slate-900 mr-1.5">1,240</span>
+              <span className="text-slate-400">Followers</span>
+            </div>
+            <div>
+              <span className="font-extrabold text-slate-900 mr-1.5">380</span>
+              <span className="text-slate-400">Following</span>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex border-t border-slate-100 bg-slate-50/50">
           {tabs.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setValue(tab.value)}
-              className={`px-4 py-2 border-2 ${value === tab.value ? 'bg-black text-white' : 'border-black'} rounded-md hover:bg-black hover:text-white transition`}
+              className={`flex-1 py-3.5 flex items-center justify-center gap-2 text-xs font-bold transition cursor-pointer border-b-2 ${
+                value === tab.value
+                  ? 'border-indigo-600 text-indigo-600 bg-white'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
+              }`}
             >
-              {tab.name}
+              <span>{tab.icon}</span>
+              <span>{tab.name}</span>
             </button>
           ))}
         </div>
+
       </div>
 
-      <div className="flex justify-center my-10">
+      {/* User Posts Stream */}
+      <div className="space-y-6">
         {value === 'post' && (
-          <div className="space-y-5 w-[95%]">
-            {Array.isArray(userPosts) && userPosts.length > 0 ? (
-              userPosts.map((post) =>
-                post ? (
-                  <div key={post.id} className="border-2 border-black rounded-md p-4">
-                    <PostCard item={post} />
-                  </div>
-                ) : (
-                  <p key={Math.random()} className="text-center text-red-600 font-bold">Lỗi: Bài viết không hợp lệ</p>
-                )
-              )
-            ) : (
-              <p className="text-center font-mono">Người dùng chưa có bài viết nào.</p>
-            )}
+          Array.isArray(userPosts) && userPosts.length > 0 ? (
+            userPosts.map((post) => (
+              <PostCard key={post.id} item={post} />
+            ))
+          ) : (
+            <div className="bg-white rounded-3xl p-10 text-center border border-slate-100 shadow-xs">
+              <p className="text-sm font-semibold text-slate-400">
+                You haven't posted anything yet.
+              </p>
+            </div>
+          )
+        )}
+
+        {value === 'reels' && (
+          <div className="bg-white rounded-3xl p-10 text-center border border-slate-100 shadow-xs">
+            <p className="text-sm font-semibold text-slate-400">
+              No Reels uploaded yet.
+            </p>
+          </div>
+        )}
+
+        {value === 'saved' && (
+          <div className="bg-white rounded-3xl p-10 text-center border border-slate-100 shadow-xs">
+            <p className="text-sm font-semibold text-slate-400">
+              Your saved collection is empty.
+            </p>
           </div>
         )}
       </div>
 
-      <Modal open={open} onClose={handleClose} closeAfterTransition>
-        <Fade in={open}>
-          <div className="bg-white p-5 border-2 border-black rounded-md w-[400px] mx-auto mt-20 relative">
-            <IconButton onClick={handleClose} className="absolute top-2 right-2 text-black">
-              <Close />
-            </IconButton>
-            <ProfileModal open={open} handleClose={handleClose} user={user} />
-          </div>
-        </Fade>
-      </Modal>
+      {/* Edit Profile Modal */}
+      <ProfileModal open={open} handleClose={handleClose} user={user} />
     </div>
   );
 };

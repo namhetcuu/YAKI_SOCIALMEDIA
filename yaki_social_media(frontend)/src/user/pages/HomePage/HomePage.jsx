@@ -1,107 +1,70 @@
-import { Grid, Drawer, IconButton } from "@mui/material";
-import Sidebar from "../../components/Sidebar/Sidebar";
-import HomeRight from "../../components/HomeRight/HomeRight";
-import { Outlet, useLocation } from "react-router-dom";
-import { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
-import MenuIcon from "@mui/icons-material/Menu";
-import InfoIcon from "@mui/icons-material/Info";
+import React, { useState, useMemo } from 'react';
+import { Drawer } from '@mui/material';
+import Header from '../../components/Header/Header';
+import Sidebar from '../../components/Sidebar/Sidebar';
+import HomeRight from '../../components/HomeRight/HomeRight';
+import { Outlet, useLocation } from 'react-router-dom';
 
 const HomePage = () => {
   const location = useLocation();
-  //const { auth } = useSelector((store) => store);
-
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const toggleDrawer = () => setDrawerOpen(!drawerOpen);
+  const toggleDrawer = () => setDrawerOpen((prev) => !prev);
 
-  const [homeRightOpen, setHomeRightOpen] = useState(false);
-  const toggleHomeRight = () => setHomeRightOpen(!homeRightOpen);
-
+  // Show right sidebar on home feed, not on profile / settings
   const showHomeRight = useMemo(() => {
-    return location.pathname.startsWith("/home") &&
-           !location.pathname.includes("/profile");
+    return (
+      location.pathname === '/home' ||
+      location.pathname === '/home/' ||
+      location.pathname === '/home/reels'
+    );
   }, [location.pathname]);
 
   return (
-    <div className="h-screen flex flex-col bg-white">
-      {/* Sidebar toggle button - only visible on mobile & tablets */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <IconButton onClick={toggleDrawer} className="text-white bg-blue-600 hover:bg-blue-700">
-          <MenuIcon />
-        </IconButton>
-      </div>
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
+      {/* 1. Sticky Modern Navigation Header (Image 1 & 2) */}
+      <Header onToggleSidebar={toggleDrawer} />
 
-      {/* HomeRight toggle button - only visible if showHomeRight is true */}
-      {showHomeRight && (
-        <div className="lg:hidden fixed top-4 right-4 z-50">
-          <IconButton
-            onClick={toggleHomeRight}
-            className="bg-blue-600 text-white hover:bg-blue-700"
-          >
-            <InfoIcon />
-          </IconButton>
-        </div>
-      )}
-
-      {/* Drawer for Sidebar */}
-      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
-        <div className="w-72 p-4">
-          <Sidebar />
-        </div>
+      {/* Mobile Sidebar Drawer */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={toggleDrawer}
+        slotProps={{
+          paper: {
+            sx: {
+              width: 280,
+              backgroundColor: '#F8FAFC',
+              p: 2,
+            },
+          },
+        }}
+      >
+        <Sidebar />
       </Drawer>
 
-      {/* Drawer for HomeRight */}
-      <Drawer anchor="right" open={homeRightOpen} onClose={toggleHomeRight}>
-        <div className="w-73 p-4">
-          <HomeRight />
-        </div>
-      </Drawer>
-
-      <Grid container spacing={0} className="h-full">
-        {/* Sidebar - hidden on screens <1024px */}
-        <Grid item
-          xs={0}
-          sm={0}
-          md={0}
-          lg={3}//≥ 1024px
-          xl={2}//≥ 1280px
-          className="hidden lg:block"
-        >
-          <div className="sticky top-0 h-screen overflow-y-auto">
+      {/* Main 3-Column Layout Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="flex gap-6 lg:gap-8 justify-center items-start">
+          
+          {/* Left Column: Fixed/Sticky Sidebar */}
+          <div className="hidden lg:block w-64 xl:w-72 flex-shrink-0 sticky top-20 h-[calc(100vh-6rem)]">
             <Sidebar />
           </div>
-        </Grid>
 
-        {/* Main Content */}
-        <Grid
-          item
-          xs={12}// < 600px
-          sm={12}//600px ≤ width < 768px
-          md={6}//768px ≤ width < 1024px
-          lg={showHomeRight ? 6 : 9}
-          xl={showHomeRight ? 7 : 10}
-          className="px-2 sm:px-4 md:px-6 flex justify-center"
-        >
-          <Outlet />
-        </Grid>
+          {/* Middle Column: Dynamic Outlet Content */}
+          <div className="flex-1 max-w-2xl min-w-0">
+            <Outlet />
+          </div>
 
-        {/* HomeRight - only show from lg and up */}
-        {showHomeRight && (
-          <Grid
-            item
-            xs={0}
-            sm={0}
-            md={3}
-            lg={3}
-            xl={3}
-            className="hidden lg:block"
-          >
-            <div className="sticky top-0 h-screen overflow-y-auto">
+          {/* Right Column: Sticky Widgets (Trending & Suggested) */}
+          {showHomeRight && (
+            <div className="hidden lg:block w-80 xl:w-88 flex-shrink-0 sticky top-20 h-[calc(100vh-6rem)] overflow-y-auto scrollbar-none">
               <HomeRight />
             </div>
-          </Grid>
-        )}
-      </Grid>
+          )}
+
+        </div>
+      </main>
     </div>
   );
 };

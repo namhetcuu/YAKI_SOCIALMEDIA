@@ -1,114 +1,138 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { Avatar, CircularProgress } from '@mui/material';
+import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
+import SecurityRoundedIcon from '@mui/icons-material/SecurityRounded';
+import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
+import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneRounded';
 
 const Setting = () => {
-  const auth = useSelector(state => state.auth);
+  const auth = useSelector((state) => state.auth);
   const user = auth.user || {
-    firstName: 'Guest',
-    lastName: 'User',
-    email: 'guest@example.com',
-    profilePicture: 'https://via.placeholder.com/150',
-    location: 'Unknown'
+    firstName: 'Alex',
+    lastName: 'Johnson',
+    email: 'alex.johnson@example.com',
+    profilePicture: '',
+    location: 'San Francisco, CA',
   };
 
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+
   const handleSave = () => {
-    alert('Settings saved successfully!');
+    setSaving(true);
+    setTimeout(() => {
+      setSaving(false);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    }, 700);
   };
 
   return (
-    <div className="min-h-screen bg-[#f3f3f3] p-6 flex justify-center items-start">
-      <div className="w-full max-w-3xl bg-white border-2 border-black shadow-[6px_6px_0_0_black] p-8">
-        
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-black">Account Settings</h1>
-          <button
-            onClick={handleSave}
-            className="bg-yellow-400 text-black px-5 py-2 border-2 border-black shadow-[2px_2px_0_0_black] cursor-pointer hover:shadow-none hover:bg-yellow-300 active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
-          >
-            Save Changes
-          </button>
+    <div className="w-full max-w-2xl py-4 sm:py-6 space-y-6">
+      
+      {/* Title */}
+      <div className="bg-white rounded-3xl p-6 shadow-xs border border-slate-100 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-black text-slate-900 tracking-tight">Account Settings</h1>
+          <p className="text-xs text-slate-500 mt-0.5">Manage your profile information and account security.</p>
         </div>
 
-        <hr className="border-black mb-6" />
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm shadow-indigo-600/20 transition cursor-pointer"
+        >
+          {saving ? <CircularProgress size={16} color="inherit" /> : <SaveRoundedIcon fontSize="small" />}
+          <span>Save Changes</span>
+        </button>
+      </div>
 
-        {/* Profile Info */}
-        <div className="flex items-center space-x-5 mb-8">
-          <img
+      {success && (
+        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-2xl text-center">
+          Settings updated successfully!
+        </div>
+      )}
+
+      {/* Profile Overview Card */}
+      <div className="bg-white rounded-3xl p-6 shadow-xs border border-slate-100 space-y-6">
+        <div className="flex items-center gap-4">
+          <Avatar
             src={user.profilePicture}
-            alt="Profile"
-            className="w-20 h-20 object-cover border-2 border-black shadow-[2px_2px_0_0_black]"
-          />
+            alt={user.firstName}
+            sx={{ width: 64, height: 64 }}
+            className="ring-2 ring-indigo-500/20"
+          >
+            {user.firstName?.charAt(0) || 'U'}
+          </Avatar>
           <div>
-            <h2 className="text-xl font-bold text-black">{user.firstName} {user.lastName}</h2>
-            <p className="text-sm text-gray-600">@{user.firstName.toLowerCase()}_{user.lastName.toLowerCase()}</p>
+            <h2 className="text-base font-bold text-slate-900">
+              {user.firstName} {user.lastName}
+            </h2>
+            <p className="text-xs text-slate-400">@{user.username || 'user'}</p>
           </div>
         </div>
 
-        {/* Form Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block font-bold text-sm mb-1">First Name</label>
+            <label className="block text-xs font-bold text-slate-600 mb-1">First Name</label>
             <input
               defaultValue={user.firstName}
-              className="w-full p-2 border-2 border-black bg-white text-black font-medium shadow-[2px_2px_0_0_black] focus:outline-none"
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 text-slate-900 text-sm border border-slate-200 focus:border-indigo-500 focus:bg-white outline-none"
             />
           </div>
           <div>
-            <label className="block font-bold text-sm mb-1">Last Name</label>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Last Name</label>
             <input
               defaultValue={user.lastName}
-              className="w-full p-2 border-2 border-black bg-white text-black font-medium shadow-[2px_2px_0_0_black] focus:outline-none"
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 text-slate-900 text-sm border border-slate-200 focus:border-indigo-500 focus:bg-white outline-none"
             />
           </div>
           <div>
-            <label className="block font-bold text-sm mb-1">Email</label>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Email</label>
             <input
               type="email"
               defaultValue={user.email}
-              className="w-full p-2 border-2 border-black bg-white text-black font-medium shadow-[2px_2px_0_0_black] focus:outline-none"
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 text-slate-900 text-sm border border-slate-200 focus:border-indigo-500 focus:bg-white outline-none"
             />
           </div>
           <div>
-            <label className="block font-bold text-sm mb-1">Location</label>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Location</label>
             <input
-              defaultValue={user.location}
-              className="w-full p-2 border-2 border-black bg-white text-black font-medium shadow-[2px_2px_0_0_black] focus:outline-none"
+              defaultValue={user.location || 'San Francisco, CA'}
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 text-slate-900 text-sm border border-slate-200 focus:border-indigo-500 focus:bg-white outline-none"
             />
           </div>
-        </div>
-
-        {/* Password Section */}
-        <hr className="border-black my-8" />
-        <h2 className="text-xl font-bold text-black mb-4">Security</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block font-bold text-sm mb-1">New Password</label>
-            <input
-              type="password"
-              className="w-full p-2 border-2 border-black bg-white text-black font-medium shadow-[2px_2px_0_0_black] focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="block font-bold text-sm mb-1">Confirm Password</label>
-            <input
-              type="password"
-              className="w-full p-2 border-2 border-black bg-white text-black font-medium shadow-[2px_2px_0_0_black] focus:outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Mobile Save Button */}
-        <div className="mt-10 md:hidden">
-          <button
-            onClick={handleSave}
-            className="w-full bg-yellow-400 text-black px-4 py-2 border-2 border-black shadow-[2px_2px_0_0_black] hover:shadow-none hover:bg-yellow-300 active:shadow-none active:translate-x-0.5  active:translate-y-0.5"
-          >
-            Save Changes
-          </button>
         </div>
       </div>
+
+      {/* Security Card */}
+      <div className="bg-white rounded-3xl p-6 shadow-xs border border-slate-100 space-y-4">
+        <div className="flex items-center gap-2 text-slate-900">
+          <SecurityRoundedIcon fontSize="small" className="text-indigo-600" />
+          <h2 className="text-sm font-bold">Password & Security</h2>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">New Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 text-slate-900 text-sm border border-slate-200 focus:border-indigo-500 focus:bg-white outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Confirm New Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 text-slate-900 text-sm border border-slate-200 focus:border-indigo-500 focus:bg-white outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 };

@@ -3,13 +3,36 @@ server:
   servlet:
     context-path: /yaki
 spring:
+  config:
+    import: optional:file:.env[.properties]
   datasource:
-    url: "jdbc:mysql://localhost:3307/zosh_social_youtube"
-    username: root
-    password: root
+    url: ${SUPABASE_DB_URL:jdbc:postgresql://localhost:5432/yaki_social_media}
+    username: ${SUPABASE_DB_USERNAME:postgres}
+    password: ${SUPABASE_DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:5}
+      minimum-idle: ${DB_MIN_IDLE:1}
+      connection-timeout: 30000
+  sql:
+    init:
+      mode: always
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        default_schema: yaki
+        jdbc:
+          time_zone: UTC
 jwt:
-  signerKey: "VHdMwE5j6vyyZ0Xw2NuxQ4nz0pA6/495uzwRCYjIgc0yRmZyjpGOn9pAy0bVvf/J"
+  signerKey: ${JWT_SIGNER_KEY}
+app:
+  bootstrap-admin:
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: INFO

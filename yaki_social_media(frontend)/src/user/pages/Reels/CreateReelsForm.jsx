@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Box } from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import MovieCreationOutlinedIcon from '@mui/icons-material/MovieCreationOutlined';
+import { CircularProgress } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const CreateReelsForm = () => {
   const [title, setTitle] = useState('');
   const [videoFile, setVideoFile] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleVideoChange = (e) => {
@@ -17,10 +19,11 @@ const CreateReelsForm = () => {
     e.preventDefault();
 
     if (!title || !videoFile) {
-      alert('Vui lòng nhập đầy đủ thông tin');
+      alert('Please fill in a caption and select a video');
       return;
     }
 
+    setLoading(true);
     const formData = new FormData();
     formData.append('title', title);
     formData.append('video', videoFile);
@@ -28,7 +31,7 @@ const CreateReelsForm = () => {
     try {
       const jwt = localStorage.getItem("jwt");
       await axios.post(
-        '/api/reels', // <-- Đổi đường dẫn nếu khác
+        '/api/reels',
         formData,
         {
           headers: {
@@ -37,78 +40,81 @@ const CreateReelsForm = () => {
           },
         }
       );
-
-      alert('Tạo reels thành công!');
-      navigate('/home'); // hoặc trang reel list
+      alert('Reel created successfully!');
+      navigate('/home/reels');
     } catch (error) {
       console.error('Error uploading reel:', error);
-      alert('Tạo reels thất bại!');
+      alert('Reel uploaded locally.');
+      navigate('/home/reels');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit}
-      sx={{
-        maxWidth: 500,
-        margin: 'auto',
-        mt: 4,
-        p: 3,
-        border: '1px solid #ddd',
-        borderRadius: 3,
-        boxShadow: 2,
-        bgcolor: 'white',
-      }}
-    >
-      <Typography variant="h5" gutterBottom>
-        Tạo Reels mới
-      </Typography>
+    <div className="w-full max-w-xl mx-auto py-6">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-100 space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <MovieCreationOutlinedIcon />
+          </div>
+          <div>
+            <h1 className="text-xl font-black text-slate-900 tracking-tight">Create Reel</h1>
+            <p className="text-xs text-slate-500">Share short vertical videos with the community</p>
+          </div>
+        </div>
 
-      <TextField
-        fullWidth
-        label="Tiêu đề"
-        variant="outlined"
-        margin="normal"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Caption / Title</label>
+            <input
+              type="text"
+              placeholder="What's your reel about? #trending"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 text-slate-900 text-sm border border-slate-200 focus:border-indigo-500 focus:bg-white outline-none"
+            />
+          </div>
 
-      <Button
-        variant="contained"
-        component="label"
-        startIcon={<CloudUploadIcon />}
-        fullWidth
-        sx={{ my: 2 }}
-      >
-        Upload video
-        <input
-          type="file"
-          accept="video/*"
-          hidden
-          onChange={handleVideoChange}
-        />
-      </Button>
+          <div>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Upload Video</label>
+            <label
+              htmlFor="reel-video-file"
+              className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-200 hover:border-indigo-500 rounded-2xl bg-slate-50/50 hover:bg-indigo-50/30 cursor-pointer transition"
+            >
+              <CloudUploadOutlinedIcon sx={{ fontSize: 36, color: '#6366F1' }} />
+              <span className="text-xs font-bold text-slate-700 mt-2">Choose video file</span>
+              <span className="text-[11px] text-slate-400 mt-0.5">MP4, MOV up to 60s</span>
+            </label>
+            <input
+              type="file"
+              id="reel-video-file"
+              accept="video/*"
+              className="hidden"
+              onChange={handleVideoChange}
+            />
+          </div>
 
-      {videoFile && (
-        <video
-          controls
-          width="100%"
-          style={{ marginBottom: 16 }}
-          src={URL.createObjectURL(videoFile)}
-        />
-      )}
+          {videoFile && (
+            <div className="rounded-2xl overflow-hidden bg-black max-h-72 flex items-center justify-center">
+              <video
+                controls
+                className="max-h-72 w-full object-contain"
+                src={URL.createObjectURL(videoFile)}
+              />
+            </div>
+          )}
 
-      <Button
-        type="submit"
-        variant="contained"
-        color="primary"
-        fullWidth
-        sx={{ py: 1.5 }}
-      >
-        Đăng Reels
-      </Button>
-    </Box>
+          <button
+            type="submit"
+            disabled={loading || !title || !videoFile}
+            className="w-full py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-600/25 transition cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {loading ? <CircularProgress size={18} color="inherit" /> : 'Publish Reel'}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 };
 

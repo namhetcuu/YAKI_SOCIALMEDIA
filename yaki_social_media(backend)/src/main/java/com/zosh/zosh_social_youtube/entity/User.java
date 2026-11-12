@@ -27,7 +27,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(name = "username", unique = true, columnDefinition = "VARCHAR(255) COLLATE utf8mb4_unicode_ci")
+    @Column(name = "username", unique = true, nullable = false, length = 255)
     String username;
 
     String password;
@@ -56,6 +56,9 @@ public class User {
     // 💡 Danh sách các reels do người dùng tạo
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Reels> reels;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Story> stories = new ArrayList<>();
 
     // Danh sách các cuộc trò chuyện mà user tham gia
     @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)

@@ -1,10 +1,11 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Avatar } from '@mui/material';
 import { followUser, getUserWithFollowStatus, unfollowUser } from '../../../redux/Users/user.action';
 
 const PopularUserCard = ({ user }) => {
   const dispatch = useDispatch();
-  const currentUser = useSelector(state => state.auth.user);
+  const currentUser = useSelector((state) => state.auth.user);
   const followed = user.followed;
 
   const handleFollowToggle = () => {
@@ -16,39 +17,44 @@ const PopularUserCard = ({ user }) => {
     setTimeout(() => dispatch(getUserWithFollowStatus(currentUser.id)), 300);
   };
 
+  const displayName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.username || 'User';
+  const roleTitle = user?.role === 'ADMIN' ? 'Admin' : 'Creator & Member';
+
   return (
-    <div className="flex items-center justify-between w-full min-w-[300px] px-4 py-3 border-2 border-black hover:bg-gray-100 transition-all duration-150">
+    <div className="flex items-center justify-between gap-3 group">
       
-      {/* Left - Avatar + Info */}
-      <div className="flex items-center space-x-3 overflow-hidden">
-        <img
-          src={user?.avatar || `https://via.placeholder.com/56`}
-          alt="avatar"
-          className="w-14 h-14 rounded-full border-2 border-black object-cover bg-red-500 flex-shrink-0"
-        />
-        <div className="overflow-hidden">
-          <p className="font-bold text-sm sm:text-base truncate">
-            {user?.username || 'Anonymous'}
+      {/* Left: Avatar + Names */}
+      <div className="flex items-center gap-3 min-w-0">
+        <Avatar
+          src={user?.profilePicture || user?.avatar || ''}
+          alt={displayName}
+          sx={{ width: 44, height: 44 }}
+          className="ring-2 ring-indigo-500/10 cursor-pointer"
+        >
+          {displayName.charAt(0)}
+        </Avatar>
+
+        <div className="min-w-0 flex-1">
+          <p className="font-bold text-sm text-slate-900 truncate hover:text-indigo-600 cursor-pointer transition leading-tight">
+            {displayName}
           </p>
-          <p className="text-gray-500 text-xs sm:text-sm truncate mt-1">
-            @{(user?.username || 'user').toLowerCase().replace(/\s+/g, '')}
+          <p className="text-xs text-slate-400 truncate mt-0.5">
+            {roleTitle}
           </p>
         </div>
       </div>
 
-      {/* Right - Follow Button */}
-      <div className="ml-auto">
-        <button
-          onClick={handleFollowToggle}
-          className={`text-xs cursor-pointer sm:text-sm font-bold px-4 py-1.5 border-2 transition-all duration-200
-            ${followed
-              ? 'bg-white text-black border-black hover:bg-gray-200 shadow-[4px_4px_0px_#000] rounded-md hover:shadow-none'
-              : 'bg-blue-600 text-white border-black hover:bg-blue-700 shadow-[4px_4px_0px_#000] rounded-md hover:shadow-none'}
-          `}
-        >
-          {followed ? 'Following' : 'Follow'}
-        </button>
-      </div>
+      {/* Right: Follow Button matching Image 1 */}
+      <button
+        onClick={handleFollowToggle}
+        className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200 cursor-pointer flex-shrink-0 ${
+          followed
+            ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+            : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs hover:shadow-sm'
+        }`}
+      >
+        {followed ? 'Followed' : 'Follow'}
+      </button>
     </div>
   );
 };

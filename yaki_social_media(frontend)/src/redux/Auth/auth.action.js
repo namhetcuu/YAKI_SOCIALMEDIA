@@ -115,27 +115,41 @@ export const loginUserAction =
 
 // 🔹 Register Action
 export const registerUserAction =
-  (registerData, navigate, onSuccess) => async (dispatch) => {
+  (registerData, navigate, onSuccess, onError) => async (dispatch) => {
     dispatch({ type: REGISTER_REQUEST });
     try {
-      const { data } = await api.post("/auth/signup", registerData);
+      await api.post("/users", registerData);
+
+      const { data } = await api.post("/auth/token", {
+        username: registerData.username,
+        password: registerData.password,
+      });
 
       const token = data?.result?.token;
       if (!token) throw new Error("No token received");
 
+      const decodedToken = jwtDecode(token);
+      const user = {
+        username: decodedToken.sub,
+        role: decodedToken.scope?.toUpperCase(),
+      };
+
       storeToken(token);
-      dispatch({ type: REGISTER_SUCCESS, payload: { token } });
+      dispatch({ type: REGISTER_SUCCESS, payload: token });
+      dispatch({ type: LOGIN_SUCCESS, payload: { token, user } });
 
       if (onSuccess) onSuccess(); // 👈 Gọi callback nếu có
 
       await dispatch(fetchUserProfile());
-      navigate("/home");
+      navigate?.("/home");
     } catch (error) {
       console.error(
         "❌ Register Error:",
         error.response?.data?.message || error.message
       );
-      dispatch({ type: REGISTER_FAILURE, payload: error.message });
+      const message = error.response?.data?.message || error.message;
+      dispatch({ type: REGISTER_FAILURE, payload: message });
+      onError?.(message);
     }
   };
 

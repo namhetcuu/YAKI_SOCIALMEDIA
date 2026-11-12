@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CommentRepository extends JpaRepository<Comment, Long> {
+public interface CommentRepository extends JpaRepository<Comment, String> {
     // ✅ Đúng cú pháp Spring Data JPA
     List<Comment> findByPost_Id(String postId);
 }

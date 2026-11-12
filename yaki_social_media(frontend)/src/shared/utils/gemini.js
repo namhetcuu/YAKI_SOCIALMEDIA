@@ -13,12 +13,18 @@ import {
     HarmBlockThreshold,
   } from "@google/generative-ai";
   
-  const apiKey = "AIzaSyAaBnOJbf2UkCrHa5n_ApovXoS5S0g4Oiw";
-  const genAI = new GoogleGenerativeAI(apiKey);
-  
-  const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
-  });
+  const getModel = () => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+    if (!apiKey) {
+      throw new Error("Missing VITE_GEMINI_API_KEY environment variable");
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    return genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+    });
+  };
   
   const generationConfig = {
     temperature: 1,
@@ -29,6 +35,7 @@ import {
   };
   
   async function run(prompt) {
+    const model = getModel();
     const chatSession = model.startChat({
       generationConfig,
       // safetySettings: Adjust safety settings
@@ -43,4 +50,3 @@ import {
   }
   
   export default run;
-  
